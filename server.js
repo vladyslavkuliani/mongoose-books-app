@@ -65,6 +65,13 @@ app.post('/api/books', function (req, res) {
     if (err) {
       return console.log(err);
     }
+
+    if(author === null){
+      author = new Author({
+        name: req.body.author
+      });
+      author.save();
+    }
     // add this author to the book
     newBook.author = author;
 
@@ -92,7 +99,16 @@ app.delete('/api/books/:id', function (req, res) {
   });
 });
 
+app.post('/api/books/:book_id/characters', function(req, res){
+  var bookId = req.params.book_id;
+  db.Book.findById(bookId).populate('author').exec(function(err, book){
+    if(err){return console.log(err);}
+    book.characters.push(req.body);
+    book.save();
+    res.json(book);
+  });
 
+});
 
 
 app.listen(process.env.PORT || 3000, function () {
